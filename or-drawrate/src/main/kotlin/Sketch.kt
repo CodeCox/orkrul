@@ -10,61 +10,56 @@ fun main() = application {
     }
     program {
 
-        // this configurable feature supports creative use of the Draw() loop.
-        // n > 0, < Long.MAX_VALUE, or NODRAW(Long.MAX_VALUE)
-
+        /*
+        This feature uses PresentationMode.AUTOMATIC & PresentationMode.MANUAL
+        WARNING:  If you also use these, then it may clash and disrupt the functionality
+         */
         /* permutations
-        AUTODRAW : AUTODRAW
-        AUTODRAW : 0 to MAX_VALUE - 1
-        AUTODRAW : NODRAW
+        FALSE - FALSE
+        FALSE - TRUE
+        TRUE - FALSE
+        TRUE - TRUE
+         */
 
-        1 to MAX_VALUE - 1 : AUTODRAW
-        1 to MAX_VALUE - 1 : 0 to MAX_VALUE - 1
-        1 to MAX_VALUE - 1  : NODRAW
+        /* test case
+        1. no user config, ext defaults
+        2. partial user config, partial ext defaults
+        3. user config
+        4. runtime config
+         */
 
-        NODRAW : AUTODRAW
-        NODRAW : 0 to MAX_VALUE - 1
-        NODRAW : NODRAW
-        */
+        /*
+        <CTRL-SPACEBAR> toggles DrawRate ON/OFF(true/false)
+        Window must be active to receive keyboard input
+         */
 
         // optional custom initialisation that will override default  values
-        val drcDR = DrawConfig(100L)
+        val dcDrawRate = DrawConfig("myDrawRate", true, 150L)
         // optional custom initialisation for special case where x or y is 0 e.g. window MINIMISED, SIZED
-        val drcM = DrawConfig(200L)
+        val dcMinimiseRate = DrawConfig("myMinimiseRate", true, 250L)
 
         extend(DrawRate()) {
-            drawRate = drcDR
-            minimiseRate = drcM
+            drawRate = dcDrawRate
+            minimiseRate = dcMinimiseRate
         }
 
-        var x = 0.0
+        var toggle = false
         extend {
             val dbgStart = seconds
 
             // DrawRate runtime config from ref vars in custom initialisation - Uncomment to test
             /*
-            if (seconds.toInt() % 10 == 0)
-                drcDR.duration = 10L
-            if (seconds.toInt() % 10 == 2)
-                drcDR.duration = 20L
-            if (seconds.toInt() % 10 == 4)
-                drcDR.duration = 40L
-            if (seconds.toInt() % 10 == 6)
-                drcDR.duration = 60L
-            if (seconds.toInt() % 10 == 8)
-                drcDR.duration = 80L
+            if (seconds.toInt() % 30 == 0)
+                dcDrawRate.duration = 1L
+            if (seconds.toInt() % 30 == 15)
+                dcDrawRate.duration = 200L
             */
-
-            x += 40
-            drawer.fill = ColorRGBa.PINK
-            drawer.circle(x.rem(width), height / 2.0, 40.0)
-
-            // test-fix this
-            /*
-            if (seconds > 20.0)
-                drcDR = AUTODRAW
-            */
-
+            toggle = !toggle
+            if (toggle)
+                drawer.fill = ColorRGBa.YELLOW
+            else
+                drawer.fill = ColorRGBa.RED
+            drawer.circle(width / 2.0, height / 2.0, 200.0)
             println("$dbgStart-$seconds")
         }
     }

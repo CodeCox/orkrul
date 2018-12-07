@@ -1,7 +1,5 @@
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.NonCancellable.isActive
-import kotlinx.coroutines.delay
 import org.openrndr.*
 import org.openrndr.math.Vector2
 
@@ -10,16 +8,19 @@ import org.openrndr.math.Vector2
  */
 
 // special cases of delay duration
-const val AUTODRAW = 0L                 // equivalent to PresentationMode.AUTOMATIC
-const val NODRAW = Long.MAX_VALUE       // equivalent to PresentationMode.MANUAL
+const val MINDELAY = 1L   //can it be 0?
+const val MAXDELAY = Long.MAX_VALUE
 
-data class DrawConfig(var duration: Long)
+data class DrawConfig(var id: String, var isEnable: Boolean = false, var duration: Long = MINDELAY)
 
 class DrawRate : Extension {
     override var enabled = true
-    @Volatile var drawRate = DrawConfig(AUTODRAW)
-    @Volatile var minimiseRate = DrawConfig(AUTODRAW)
-    private var prevRate = NODRAW
+
+    @Volatile
+    var drawRate = DrawConfig("DrawRate")
+    @Volatile
+    var minimiseRate = DrawConfig("MinimiseRate")
+
     private lateinit var drawRateJob: Job
     private lateinit var minRateJob: Job
     private var restoreWindow: Vector2? = null
@@ -28,57 +29,55 @@ class DrawRate : Extension {
 
     override fun setup(program: Program) {
         // 1.a setup DEFAULT case DRAWRATE
-        setupDrawRate(program)
+        if (drawRate.isEnable)
+            drawRateJob = program.launch {
+                pulse(program, drawRate)
+            }
 
         // 1.b setup ON/OFF toggle for DRAWRATE
         program.keyboard.keyDown.listen {
             if (it.key == KEY_SPACEBAR && KeyboardModifier.CTRL in it.modifiers) {
-                if (::drawRateJob.isInitialized && drawRateJob.isActive) { //Toggle OFF
-                    drawRateJob.cancel()
-                    program.window.presentationMode = PresentationMode.AUTOMATIC
-                    prevRate = drawRate.duration
-                    drawRate.duration = AUTODRAW
-                } else if (drawRate.duration == NODRAW) { //Toggle OFF
-                    program.window.presentationMode = PresentationMode.AUTOMATIC
-                    prevRate = drawRate.duration
-                    drawRate.duration = AUTODRAW
-                } else if (drawRate.duration == AUTODRAW) { //Toggle ON
-                    drawRate.duration = prevRate
-                    prevRate = AUTODRAW
-                    setupDrawRate(program)
-                }
+                if (drawRate.isEnable) {
+                    if (::drawRateJob.isInitialized && drawRateJob.isActive)
+                        runBlocking {
+                            drawRateJob.cancelAndJoin()
+                        }
+                } else
+                    drawRateJob = program.launch {
+                        pulse(program, drawRate)
+                    }
+                drawRate.isEnable = !drawRate.isEnable
             }
         }
 
-        // 2. setup special case #1 NOTVISIBLE e.g. MINIMISED
+        // 2. setup special case #1 xor y is 0 e.g. MINIMISE, SIZE events
         program.window.sized.listen {
             if (it.size.x == 0.0 || it.size.y == 0.0) {
                 println("Window SIZE: width or height is 0")
-                if (minimiseRate.duration > 0) {
+                if (minimiseRate.isEnable) {
                     restoreWindow = it.size
-                    program.window.presentationMode = PresentationMode.MANUAL
                     if (::drawRateJob.isInitialized && drawRateJob.isActive) {
-                        drawRateJob.cancel()
-                        restoreDrawRate = true
-                    } else if (drawRate.duration == NODRAW)
-                        restoreDrawRate = true
-                    if (minimiseRate.duration != NODRAW) {
-                        minRateJob = program.launch {
-                            pulse(program, minimiseRate)
+                        runBlocking {
+                            drawRateJob.cancelAndJoin()
                         }
+                        restoreDrawRate = true
+                    }
+                    minRateJob = program.launch {
+                        pulse(program, minimiseRate)
                     }
                 }
-            } else {
-                if (restoreWindow?.x == 0.0 || restoreWindow?.y == 0.0) {
-                    println("Window RESTORE: x or y no longer 0")
-                    restoreWindow = null
-                    if (::minRateJob.isInitialized && minRateJob.isActive)
-                        minRateJob.cancel()
-                    if (restoreDrawRate) {
-                        restoreDrawRate = false
-                        setupDrawRate(program)
-                    } else
-                        program.window.presentationMode = PresentationMode.AUTOMATIC
+            } else if (restoreWindow?.x == 0.0 || restoreWindow?.y == 0.0) {
+                println("Window RESTORE: x or y no longer 0")
+                restoreWindow = null
+                if (::minRateJob.isInitialized && minRateJob.isActive)
+                    runBlocking {
+                        minRateJob.cancelAndJoin()
+                    }
+                if (restoreDrawRate) {
+                    restoreDrawRate = false
+                    drawRateJob = program.launch {
+                        pulse(program, drawRate)
+                    }
                 }
             }
         }
@@ -92,24 +91,17 @@ class DrawRate : Extension {
         }
     }
 
-    private fun setupDrawRate(program: Program) {
-        if (drawRate.duration > 0) {
-            program.window.presentationMode = PresentationMode.MANUAL
-            if (drawRate.duration != NODRAW) {
-                drawRateJob = program.launch {
-                    pulse(program, drawRate)
-                }
-            }
-        }
-    }
-
     @UseExperimental(InternalCoroutinesApi::class)
     suspend fun pulse(program: Program, dc: DrawConfig) {
-        while (isActive) {
-            delay(dc.duration)
-            println("request draw() after ${dc.duration}L")
-            program.window.requestDraw()
+        program.window.presentationMode = PresentationMode.MANUAL
+        try {
+            while (isActive) {
+                delay(dc.duration)   /// delay or request first
+                println("request draw() $dc")
+                program.window.requestDraw()
+            }
+        } finally {
+            program.window.presentationMode = PresentationMode.AUTOMATIC
         }
     }
-
 }

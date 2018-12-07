@@ -7,7 +7,7 @@ This configurable feature supports creative use of the Draw() loop.
 ## DrawRate
 config params :
  - enabled (true or false)
- - duration > 0, < Long.MAX_VALUE, or NODRAW(== MAX_VALUE)
+ - duration > 0, < Long.MAX_VALUE, or MAXDELAY(== MAX_VALUE)
  
  default:
  ```
@@ -19,7 +19,7 @@ config params :
 if enabled the window minimise event triggers this.
 config params :
  - enabled (true or false)
- - duration > 0, < Long.MAX_VALUE, or NODRAW(== MAX_VALUE)
+ - duration > 0, < Long.MAX_VALUE, or MAXDELAY(== MAX_VALUE)
 
 default:
  ```
@@ -43,31 +43,31 @@ if (seconds.toInt() % 20 == 10)
 
 ### Test Cases
         /* permutations
-        AUTODRAW : AUTODRAW
-        AUTODRAW : 0 to MAX_VALUE - 1
-        AUTODRAW : NODRAW
+        MINDELAY : MINDELAY
+        MINDELAY : 0 to MAX_VALUE - 1
+        MINDELAY : MAXDELAY
 
-        0 to MAX_VALUE - 1 : AUTODRAW
+        0 to MAX_VALUE - 1 : MINDELAY
         0 to MAX_VALUE - 1 : 0 to MAX_VALUE - 1
-        0 to MAX_VALUE - 1  : NODRAW
+        0 to MAX_VALUE - 1  : MAXDELAY
 
-        NODRAW : AUTODRAW
-        NODRAW : 0 to MAX_VALUE - 1
-        NODRAW : NODRAW
+        MAXDELAY : MINDELAY
+        MAXDELAY : 0 to MAX_VALUE - 1
+        MAXDELAY : MAXDELAY
         */
 
 - default config
 1. feature totally disabled - app is 'std' mode
 2. spacebar toggles DrawRate
 3. window minimise does not change above.
-4. test for NODRAW and  x > 0 && x < MAX_VALUE 
+4. test for MAXDELAY and  x > 0 && x < MAX_VALUE 
 
 - enable minRate
 1. app is 'std' mode
 2. spacebar toggles DrawRate
 3. window minimise enabled for both cases of above.
 4. window restore resumes prev DrawRate state.
-5. test for NODRAW and  x > 0 && x < MAX_VALUE 
+5. test for MAXDELAY and  x > 0 && x < MAX_VALUE 
 
 - custom initialisation config
 
