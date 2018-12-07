@@ -42,6 +42,20 @@ if (seconds.toInt() % 20 == 10)
 ```
 
 ### Test Cases
+        /* permutations
+        AUTODRAW : AUTODRAW
+        AUTODRAW : 0 to MAX_VALUE - 1
+        AUTODRAW : NODRAW
+
+        0 to MAX_VALUE - 1 : AUTODRAW
+        0 to MAX_VALUE - 1 : 0 to MAX_VALUE - 1
+        0 to MAX_VALUE - 1  : NODRAW
+
+        NODRAW : AUTODRAW
+        NODRAW : 0 to MAX_VALUE - 1
+        NODRAW : NODRAW
+        */
+
 - default config
 1. feature totally disabled - app is 'std' mode
 2. spacebar toggles DrawRate
