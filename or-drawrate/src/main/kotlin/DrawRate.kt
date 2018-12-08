@@ -8,7 +8,7 @@ import org.openrndr.math.Vector2
  */
 
 // special cases of delay duration
-const val MINDELAY = 1L   //can it be 0?
+const val MINDELAY = 1L   // delay(0) is problematic
 const val MAXDELAY = Long.MAX_VALUE
 
 data class DrawConfig(var id: String, var isEnable: Boolean = false, var duration: Long = MINDELAY)
@@ -96,8 +96,8 @@ class DrawRate : Extension {
         program.window.presentationMode = PresentationMode.MANUAL
         try {
             while (isActive) {
-                delay(dc.duration)   /// delay or request first
-                println("request draw() $dc")
+                delay(dc.duration)
+                println("request draw() for ${dc.id} after ${dc.duration}L")
                 program.window.requestDraw()
             }
         } finally {

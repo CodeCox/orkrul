@@ -2,79 +2,69 @@
 
 This configurable feature supports creative use of the Draw() loop.
 
-`SPACEBAR` toggles the DrawRate on or off  
+Blurb on `Presentation Control` from the Guide
+> The default mode is automatic presentation, the draw method is called as often as possible. The other mode is manual presentation, in which it is the developer's responsibility to request draw to be called.
 
+This feature supports finer control between `PresentationMode.AUTOMATIC` and `PresentationMode.MANUAL`.
+It has a base `DrawRate` config that applies to the draw loop generally. Additionally, further special cases may be configued
+(currently, special case 'Minimise' is supported).
+
+NB! Refrain from using presention control modes 'AUTOMATIC' and 'MANUAL' within your app when this feature is `enabled` because it may cause contra-indications.  
+ 
 ## DrawRate
-config params :
- - enabled (true or false)
- - duration > 0, < Long.MAX_VALUE, or MAXDELAY(== MAX_VALUE)
- 
- default:
- ```
- var drawRate = DrawRateConfig(false, 1000L)
- ```
-       
-       
-## MinRate
-if enabled the window minimise event triggers this.
-config params :
- - enabled (true or false)
- - duration > 0, < Long.MAX_VALUE, or MAXDELAY(== MAX_VALUE)
+### Usage
 
-default:
- ```
- var minRate = DrawRateConfig(false, 2000L)
- ```
- 
- 
-## optional custom initialisation that will override default values
-```
-var drcDR = DrawRateConfig(true, 325L)
-var drcM = DrawRateConfig(true, 750L)
-```
+```kotlin
+val dcDrawRate = DrawConfig("myDrawRate", true, 200L)
 
-## optional runtime config
+extend(DrawRate()) {
+    drawRate = dcDrawRate
+}
+```   
+
+The config has 3 settings
+- `id` : any string
+- `enable` : true or false
+- `delay duration` : a value greater than 0 i.e. between MINDELAY(1L) and MAXDELAY(Long.MAX_VALUE)
+
+Subsequently the draw rate can also be toggled at runtime using the keyboard viz.
+`<CTRL_BACKSPACE>`. (The drawing window must be active to receive keyboard input.)
+
+
+
+#### Optional runtime config
+Further control is supported at runtime e.g.
 ```
 if (seconds.toInt() % 20 == 0)
-    drcDR.duration = 150L
+    dcDrawRate.duration = 1L
 if (seconds.toInt() % 20 == 10)
-    drcDR.duration = 500L
+    dcDrawRate.duration = 225L
 ```
+     
+       
+## Window Event - Special Case 1 
+Some window events may cause the width and/or height to be 0 e.g. MINIMISE or SIZE. 
+In this case the drawing window is not visible. 
+In this situation in may make sense to pause the draw loop. 
+(Or to reduce the frequency of the draw())
 
-### Test Cases
-        /* permutations
-        MINDELAY : MINDELAY
-        MINDELAY : 0 to MAX_VALUE - 1
-        MINDELAY : MAXDELAY
+```kotlin
+val dcMinimiseRate = DrawConfig("myMinimmiseRate", true, MAXDELAY)
 
-        0 to MAX_VALUE - 1 : MINDELAY
-        0 to MAX_VALUE - 1 : 0 to MAX_VALUE - 1
-        0 to MAX_VALUE - 1  : MAXDELAY
+extend(DrawRate()) {
+    drawRate = dcMinimiseRate
+}
+```   
 
-        MAXDELAY : MINDELAY
-        MAXDELAY : 0 to MAX_VALUE - 1
-        MAXDELAY : MAXDELAY
-        */
+It has the same 3 config settings as DrawRate
+- `id` : any string
+- `enable` : true or false
+- `delay duration` : a value greater than 0 i.e. between MINDELAY(1L) and MAXDELAY(Long.MAX_VALUE). 
+MAXDELAY will effectively pause the draw loop. 
 
-- default config
-1. feature totally disabled - app is 'std' mode
-2. spacebar toggles DrawRate
-3. window minimise does not change above.
-4. test for MAXDELAY and  x > 0 && x < MAX_VALUE 
-
-- enable minRate
-1. app is 'std' mode
-2. spacebar toggles DrawRate
-3. window minimise enabled for both cases of above.
-4. window restore resumes prev DrawRate state.
-5. test for MAXDELAY and  x > 0 && x < MAX_VALUE 
-
-- custom initialisation config
-
-as above.
-
-- custom runtime config
-
-as above.
-
+This action is triggered by a window `SIZE` event. It only goes into effect when the width or height is 0. 
+A window 'RESTORE' event resumes the prior draw frequency. 
  
+ 
+## Window Event - Special Case 2
+### UNFOCUS - ToDo 

@@ -6,38 +6,17 @@ import org.openrndr.color.ColorRGBa
  */
 fun main() = application {
     configure {
-        title = "DrawRate"
+        title = "Color Perception based on DrawRate"
     }
     program {
-
-        /*
-        This feature uses PresentationMode.AUTOMATIC & PresentationMode.MANUAL
-        WARNING:  If you also use these, then it may clash and disrupt the functionality
-         */
-        /* permutations
-        FALSE - FALSE
-        FALSE - TRUE
-        TRUE - FALSE
-        TRUE - TRUE
-         */
-
-        /* test case
+        /* test cases
         1. no user config, ext defaults
         2. partial user config, partial ext defaults
         3. user config
         4. runtime config
          */
-
-        /*
-        <CTRL-SPACEBAR> toggles DrawRate ON/OFF(true/false)
-        Window must be active to receive keyboard input
-         */
-
-        // optional custom initialisation that will override default  values
-        val dcDrawRate = DrawConfig("myDrawRate", true, 150L)
-        // optional custom initialisation for special case where x or y is 0 e.g. window MINIMISED, SIZED
-        val dcMinimiseRate = DrawConfig("myMinimiseRate", true, 250L)
-
+        val dcDrawRate = DrawConfig("myDrawRate", true, 200L)
+        val dcMinimiseRate = DrawConfig("myMinimiseRate", true, 400L)
         extend(DrawRate()) {
             drawRate = dcDrawRate
             minimiseRate = dcMinimiseRate
@@ -45,22 +24,23 @@ fun main() = application {
 
         var toggle = false
         extend {
-            val dbgStart = seconds
+            val dbgStart = seconds   //debug
 
-            // DrawRate runtime config from ref vars in custom initialisation - Uncomment to test
-            /*
-            if (seconds.toInt() % 30 == 0)
-                dcDrawRate.duration = 1L
-            if (seconds.toInt() % 30 == 15)
-                dcDrawRate.duration = 200L
-            */
             toggle = !toggle
             if (toggle)
-                drawer.fill = ColorRGBa.YELLOW
+                drawer.fill = ColorRGBa.BLUE
             else
                 drawer.fill = ColorRGBa.RED
             drawer.circle(width / 2.0, height / 2.0, 200.0)
-            println("$dbgStart-$seconds")
+
+            // DrawRate runtime config - REMOVE COMMENTS TO TEST!
+            /*
+            if (seconds.toInt() % 20 == 0)
+                dcDrawRate.duration = 1L
+            if (seconds.toInt() % 20 == 10)
+                dcDrawRate.duration = 225L
+            */
+            println("$dbgStart-$seconds") //debug
         }
     }
 }
