@@ -46,7 +46,7 @@ if (seconds.toInt() % 20 == 10)
 ## Window Event - Special Case 1 
 Some window events may cause the width and/or height to be 0 e.g. MINIMISE or SIZE. 
 In this case the drawing window is not visible. 
-In this situation in may make sense to pause the draw loop. 
+In this situation it may make sense to pause the draw loop. 
 (Or to reduce the frequency of the draw())
 
 ```kotlin
