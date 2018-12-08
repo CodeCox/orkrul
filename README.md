@@ -1,7 +1,7 @@
 # orkrul
 
 This configurable feature supports creative use of the Draw() loop. 
-It also has a ultilitarian purpose in that it enables a high-level means of managing consumption of system resources(CPU, Memory).
+It also has a utilitarian purpose in that it enables a high-level means of managing consumption of system resources(CPU, Memory).
 
 Blurb on `Presentation Control` from the Guide
 > The default mode is automatic presentation, the draw method is called as often as possible. The other mode is manual presentation, in which it is the developer's responsibility to request draw to be called.
@@ -29,7 +29,7 @@ The config has 3 settings
 - `delay duration` : a value greater than 0 i.e. between MINDELAY(1L) and MAXDELAY(Long.MAX_VALUE)
 
 Subsequently the draw rate can also be toggled at runtime using the keyboard viz.
-`<CTRL_BACKSPACE>`. (The drawing window must be active to receive keyboard input.)
+`<CTRL_SPACEBAR>`. (The drawing window must be active to receive keyboard input.)
 
 
 
