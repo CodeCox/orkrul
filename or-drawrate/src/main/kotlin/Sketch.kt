@@ -1,5 +1,8 @@
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
+import org.openrndr.extensions.DrawConfig
+import org.openrndr.extensions.DrawRate
+import org.openrndr.extensions.MAX_DELAY
 
 /*
  * Copyright (C) 2018.  CodeCox@NousMous - All Rights Reserved.
@@ -7,6 +10,7 @@ import org.openrndr.color.ColorRGBa
 fun main() = application {
     configure {
         title = "Color Perception based on DrawRate"
+        //windowResizable = false
     }
     program {
         /* test cases
@@ -15,11 +19,14 @@ fun main() = application {
         3. user config
         4. runtime config
          */
-        val dcDrawRate = DrawConfig("myDrawRate", true, 200L)
-        val dcMinimiseRate = DrawConfig("myMinimiseRate", true, 400L)
+        val dcDrawRate = DrawConfig("myDrawRate", false, 200L)
+        val dcMinimiseRate = DrawConfig("myMinimiseRate", false, MAX_DELAY)
+        val dcUnfocusRate = DrawConfig("myUnfocusRate", true, 400L)
+
         extend(DrawRate()) {
             drawRate = dcDrawRate
             minimiseRate = dcMinimiseRate
+            unfocusRate = dcUnfocusRate
         }
 
         var toggle = false

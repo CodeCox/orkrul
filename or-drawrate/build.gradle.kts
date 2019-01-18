@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.3.10"
+    id("org.jetbrains.kotlin.jvm") version "1.3.11"
 }
 
 version = "1.0-SNAPSHOT"
@@ -12,8 +12,8 @@ repositories {
     maven(url = ("https://jitpack.io"))
 }
 
-val openrndrVersion = "0.3.30"
-val orxVersion = "v0.0.15"
+val openrndrVersion = "0.3.31"
+val orxVersion = "v0.0.16"
 val slf4jVersion = "1.7.25"
 // windows platform specific!
 
