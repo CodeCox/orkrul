@@ -1,5 +1,4 @@
 rootProject.name = 'orkrul'
-include 'or-drawrate'
 include 'testy'
 include 'test'
 
