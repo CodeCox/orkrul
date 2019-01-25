@@ -1,4 +1,3 @@
 rootProject.name = 'orkrul'
 include 'testy'
-include 'test'
 
